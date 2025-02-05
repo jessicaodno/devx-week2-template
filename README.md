@@ -2,16 +2,9 @@
 
 ## Getting Started
 
-This contains the completed code and other resources for today's workshop.
-
 We will be continuing from where we left off week 1. In this repository I initialized the app with `npm create vite@latest devx-week2 -- --template react` rather than `npm create-react-app devx-week2`. The latter command doesn't work well with node v22, though either is okay for our purposes.
 
-```bash
-# If you want to start from a clean slate:
-git clone https://github.com/dmychen/devx-week2-template.git
-cd devx-week1
-npm install
-```
+> If you're using vite, start the server with `npm run dev` instead of `npm start`
 
 ## Resources
 
