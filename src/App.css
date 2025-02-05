@@ -4,3 +4,9 @@
   padding: 2rem;
   text-align: center;
 }
+
+/* Make input elements display on seperate lines */
+input {
+  display: block;
+  margin-bottom: 10px;
+}

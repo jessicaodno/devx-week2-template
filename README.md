@@ -2,7 +2,7 @@
 
 ## Getting Started
 
-This contains the completed code and other resrouces for today's workshop.
+This contains the completed code and other resources for today's workshop.
 
 We will be continuing from where we left off week 1. In this repository I initialized the app with `npm create vite@latest devx-week2 -- --template react` rather than `npm create-react-app devx-week2`. The latter command doesn't work well with node v22, though either is okay for our purposes.
 
@@ -260,6 +260,119 @@ And then we create a button that toggles showAddTodo between true and false, and
 <button onClick={() => setShowAddTodo(!showAddTodo)}>Create New Todo</button>
 {showAddTodo ? (<AddTodo addTask={addTask} />) : null }
 ```
+
+### Add Editing Functionality
+
+How can we make each task editable?
+
+We can have the tasks conditionally render as two different components, TodoItem or EditTodo, based on if we are currently editing that task.
+
+```jsx
+// in `TodoList.jsx` we create a state to track the index of the task we are currently editing (-1 for none)
+const [editingIndex, setEditingIndex] = useState(-1); 
+```
+
+Now we can render TodoItems components for all tasks except the one we are currently editing, for which we render an EditTodo component:
+
+```jsx
+// map each task to either EditTodo or TodoItem, based on if its index = editingIndex
+{tasks.map((task, index) => (
+    editingIndex == index ? (
+        <EditTodo 
+            key={index} 
+        />
+    ) : (
+        <TodoItem 
+            key={index}
+            task={task} 
+            index={index} 
+            deleteTask={deleteTask}
+            editTask={editTask}
+        />
+    )
+))}
+```
+
+Next we create our EditTodo component. It looks very similar to our AddTodo component, with editable text fields for a title, notes, and date. We add a submit and cancel button. (We could alternatively have a single component to replace both AddTodo and EditTodo, and just change the callback function we provide as a prop and some other things)
+
+```jsx
+import { useState } from "react";
+
+function EditTodo () {
+    const [title, setTitle] = useState('');
+    const [notes, setNotes] = useState('');
+    const [due, setDue] = useState('');
+
+    // updates title, notes, and due-date variables on user input
+    function handleChange(e, target){
+        if (target == "title") {
+            setTitle(e.target.value);
+        } else if (target == "notes") {
+            setNotes(e.target.value);
+        } else {
+            setDue(e.target.value);
+        }
+    }
+
+    return (
+        <div className="edit-task">
+            <input type="text" value={title} onChange={(e) => handleChange(e, "title")} placeholder="Task Title" />
+            <input type="text" value={notes} onChange={(e) => handleChange(e, "notes")} placeholder="Task Notes" />
+            <input type="text" value={due} onChange={(e) => handleChange(e, "due")} placeholder="Task Due Date" />
+            <button >Save</button>
+            <button >Cancel</button>
+        </div>
+      );
+}
+
+export default EditTodo;
+```
+
+To handle editing, we can create a function in TodoList that, given an index and new title, notes, and date, will change the task at that index.
+
+```jsx
+function editTask (index, newTitle, newNotes, newDue) {
+    const newTasks = [...tasks]; // create a copy of tasks
+    newTasks[index] = [ newTitle, newNotes, newDue ]; // Update the task at the editing index
+    setTasks(newTasks);
+}
+```
+
+We pass that function to EditTodo, along with setEditingIndex, so we can reset the currently editing index to -1 when we cancel or submit.
+
+```jsx
+function EditTodo ({ index, editTask, setEditingIndex }) {
+
+    function handleSave () {
+        editTask(index, title, notes, due);
+        setEditingIndex(-1);
+    }
+
+    // ...
+
+    return (
+        <div className="edit-task">
+            ...
+            <button onClick={handleSave} >Save</button>
+            <button onClick={() => setEditingIndex(-1)} >Cancel</button>
+        </div>
+      );
+}
+```
+
+And make sure to update the props we pass to it:
+
+```jsx
+// in `TodoList.jsx`
+<EditTodo 
+    key={index} 
+    index={index}
+    editTask={editTask}
+    setEditingIndex={setEditingIndex}
+/>
+```
+
+
 
 ## Next Steps
 
